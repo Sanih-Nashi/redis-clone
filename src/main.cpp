@@ -6,6 +6,7 @@
 #include "reutils.h"
 
 int serverSocket;
+volatile int clientno = 0;
 
 void close_socket();
 
@@ -18,20 +19,7 @@ int main()
   sockaddr_in serverAddress;
   SetAndBindServerSocket(serverAddress, serverSocket);
   
-
-  int clientSocket;
-
-  // connecting with the client
-  sockaddr_in clientAddress;
-  atexit(close_socket);
-
-  while (true)
-  {
-    ConnectClientSocket(clientAddress, clientSocket, serverSocket);
-
-    // Communicate with the client
-    Communicate(clientSocket);
-  }
+  manage_client(clientno);
 
   // Close the sockets
 
@@ -42,3 +30,4 @@ void close_socket()
 {
   close(serverSocket);
 }
+

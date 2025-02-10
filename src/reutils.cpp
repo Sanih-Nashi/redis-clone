@@ -2,6 +2,7 @@
 #include "parser.h"
 
 #include <iostream>
+#include <thread>
 #include <cstring>
 #include <fstream>
 #include <string_view>
@@ -239,4 +240,26 @@ void readDatafile()
       }
     }
   }
+}
+
+void manage_client(volatile int &clientno)
+{
+  if (clientno == CLIENT_MAX)
+    return;
+
+  clientno++;
+
+  int clientSocket;
+
+  std::thread client(manage_client);
+
+  // connecting with the client
+  sockaddr_in clientAddress;
+  atexit(close_socket);
+
+  ConnectClientSocket(clientAddress, clientSocket, serverSocket);
+
+  // Communicate with the client
+  Communicate(clientSocket);
+  clientno++;
 }
