@@ -242,11 +242,6 @@ void readDatafile()
   }
 }
 
-void closeServer(){
-  std::cin.get();
-  shouldCloseServer = true;
-}
-
 void manage_client(int &serverSocket, volatile int &clientno)
 {
   if (clientno == CLIENT_MAX) 

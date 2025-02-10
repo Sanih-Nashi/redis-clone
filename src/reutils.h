@@ -15,10 +15,8 @@ void Communicate(int &clientSocket);
 
 void manage_client(int &serverSocket, volatile int &clientno);
 
-void closeServer();
 
 inline std::unordered_map<std::string, std::string> data;
-inline bool shouldCloseServer = false;
 
 #define DATA_FILE_NAME "data.raotf"
 #define CLIENT_MAX 5

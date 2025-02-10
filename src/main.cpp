@@ -22,7 +22,6 @@ int main()
   
   atexit(close_socket);
 
-  std::thread shutserver(closeServer);
   manage_client(serverSocket, clientno);
 
   shutserver.join();
