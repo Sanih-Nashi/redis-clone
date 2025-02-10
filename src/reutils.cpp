@@ -6,7 +6,6 @@
 #include <fstream>
 #include <string_view>
 
-
 #include <unistd.h>
 
 #define toString(x) (x + '0')
@@ -45,7 +44,6 @@ void SetAndBindServerSocket(sockaddr_in &server, int &file_descriptor_server)
   }
 
   std::cout << "Server is listening on port 8080..." << "\n";
-
 }
 
 void ConnectClientSocket(sockaddr_in &client, int &file_descriptor_client, int &file_descriptor_server)
@@ -75,7 +73,6 @@ void Communicate(int &clientSocket)
   // creates an ostream obj to append the commands that will be executed by the client
   std::ofstream aot(DATA_FILE_NAME, std::ios_base::app);
 
-
   char buffer[1024];
   while (true)
   {
@@ -99,13 +96,11 @@ void Communicate(int &clientSocket)
     Parser parser;
     std::vector<std::string> v = parser.ParseCommand(buffer);
 
-
     // Print the received message
     for (std::string a : v)
     {
       std::cout << a << "\n";
     }
-
 
     // processes the commands
     if (v[0] == "GET")
@@ -148,13 +143,12 @@ void Communicate(int &clientSocket)
       const char *response = "+Ok\r\n";
       send(clientSocket, response, strlen(response), 0);
 
-          // stores it in a file
-      for (std::string& str : v)
-        aot << str <<" ";
+      // stores it in a file
+      for (std::string &str : v)
+        aot << str << " ";
 
       // adds a null termination after command
       aot << "\n";
-
     }
     else if (v[0] == "DEL")
     {
@@ -173,13 +167,11 @@ void Communicate(int &clientSocket)
         send(clientSocket, response.c_str(), response.size(), 0);
       }
 
-      for (std::string& str : v)
-        aot << str <<" ";
+      for (std::string &str : v)
+        aot << str << " ";
 
       // adds a null termination after command
       aot << "\n";
-
-
     }
     // just returns the final value
     else if (v[0] == "PING")
@@ -194,7 +186,7 @@ void Communicate(int &clientSocket)
       exit(0);
     }
     else
-    {// will expand it furthur
+    { // will expand it furthur
       const char *response = "-Not a valid operator yet\r\n";
       send(clientSocket, response, strlen(response), 0);
     }
@@ -203,16 +195,15 @@ void Communicate(int &clientSocket)
 
 void readDatafile()
 {
-  //reads the file
+  // reads the file
   std::ifstream in(DATA_FILE_NAME);
 
-
-  if(!in.is_open()){
-    std::cerr <<"file \"" <<DATA_FILE_NAME <<"\" is not open"
-    <<"\n exited with code 1";
+  if (!in.is_open())
+  {
+    std::cerr << "file \"" << DATA_FILE_NAME << "\" is not open"
+              << "\n exited with code 1";
     exit(1);
   }
-
 
   std::string buffer;
   Parser parser;
@@ -238,7 +229,6 @@ void readDatafile()
 
       else
         data.insert(std::make_pair(v[1], v[2]));
-
     }
     else if (v[0] == "DEL")
     {
