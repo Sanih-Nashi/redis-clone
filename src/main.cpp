@@ -5,7 +5,6 @@
 
 #include "reutils.h"
 
-int clientSocket;
 int serverSocket;
 
 void close_socket();
@@ -18,6 +17,9 @@ int main()
   // setting and binding the socket
   sockaddr_in serverAddress;
   SetAndBindServerSocket(serverAddress, serverSocket);
+  
+
+  int clientSocket;
 
   // connecting with the client
   sockaddr_in clientAddress;
