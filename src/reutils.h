@@ -13,7 +13,7 @@ void ConnectClientSocket(sockaddr_in &client, int &file_descriptor_client, int &
 
 void Communicate(int &clientSocket);
 
-void manage_client(volatile int &clientno);
+void manage_client(volatile int &clientno, int &serverSocket);
 
 inline std::unordered_map<std::string, std::string> data;
 

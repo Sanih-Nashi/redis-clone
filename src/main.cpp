@@ -19,7 +19,9 @@ int main()
   sockaddr_in serverAddress;
   SetAndBindServerSocket(serverAddress, serverSocket);
   
-  manage_client(clientno);
+  atexit(close_socket);
+
+  manage_client(clientno, serverSocket);
 
   // Close the sockets
 
