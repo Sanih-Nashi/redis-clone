@@ -21,7 +21,7 @@ int main()
   
   atexit(close_socket);
 
-  manage_client(clientno, serverSocket);
+  manage_client(serverSocket, clientno);
 
   // Close the sockets
 

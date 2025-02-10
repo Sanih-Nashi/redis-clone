@@ -242,23 +242,26 @@ void readDatafile()
   }
 }
 
-void manage_client(volatile int &clientno, int &serverSocket)
+void manage_client(int &serverSocket, volatile int &clientno)
 {
-  if (clientno == CLIENT_MAX)
+  if (clientno == CLIENT_MAX) 
     return;
 
   clientno++;
 
   int clientSocket;
 
-  std::thread client(manage_client, std::ref(clientno),std::ref(serverSocket));
-
   // connecting with the client
   sockaddr_in clientAddress;
 
   ConnectClientSocket(clientAddress, clientSocket, serverSocket);
 
+  std::thread client(manage_client, std::ref(serverSocket), std::ref(clientno));
+
   // Communicate with the client
   Communicate(clientSocket);
+
+  client.join();
+
   clientno--;
 }
