@@ -40,6 +40,5 @@ int main()
 
 void close_socket()
 {
-  close(clientSocket);
   close(serverSocket);
 }
