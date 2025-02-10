@@ -242,6 +242,11 @@ void readDatafile()
   }
 }
 
+void closeServer(){
+  std::cin.get();
+  shouldCloseServer = true;
+}
+
 void manage_client(int &serverSocket, volatile int &clientno)
 {
   if (clientno == CLIENT_MAX) 
@@ -261,7 +266,15 @@ void manage_client(int &serverSocket, volatile int &clientno)
   // Communicate with the client
   Communicate(clientSocket);
 
+  while(!shouldCloseServer){
+
+    ConnectClientSocket(clientAddress, clientSocket, serverSocket);
+    // Communicate with the client
+    Communicate(clientSocket);
+
+  }
+
+
   client.join();
 
-  clientno--;
 }

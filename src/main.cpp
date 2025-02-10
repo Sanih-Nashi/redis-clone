@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 
 #include <cstdlib>
+#include <thread>
 
 #include "reutils.h"
 
@@ -21,8 +22,10 @@ int main()
   
   atexit(close_socket);
 
+  std::thread shutserver(closeServer);
   manage_client(serverSocket, clientno);
 
+  shutserver.join();
   // Close the sockets
 
   return 0;
