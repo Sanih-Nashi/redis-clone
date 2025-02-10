@@ -182,10 +182,6 @@ void Communicate(int &clientSocket)
 
       send(clientSocket, response.c_str(), response.size(), 0);
     }
-    else if (v[0] == "CLOSESERVER")
-    {
-      exit(0);
-    }
     else
     { // will expand it furthur
       const char *response = "-Not a valid operator yet\r\n";
