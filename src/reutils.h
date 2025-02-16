@@ -20,7 +20,7 @@ bool connectClientSocket(sockaddr_in &client, int &file_descriptor_client, const
 
 void Communicate(int &clientSocket);
 
-void manageClient(const int &serverSocket,const volatile int clientno);
+void manageClient(const int &serverSocket,const int clientno);
 
 void closeServer(int &serverSocket);
 

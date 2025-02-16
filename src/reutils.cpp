@@ -150,7 +150,7 @@ void Communicate(int &clientSocket)
       for (std::string &str : v)
         aot << str << " ";
 
-      aot << "\n";
+      aot <<std::endl;
 
     }
 
@@ -174,7 +174,7 @@ void Communicate(int &clientSocket)
       for (std::string &str : v)
         aot << str << " ";
 
-      aot << "\n";
+      aot <<std::endl;
     }
     else if (v[0] == "PING")
     {
@@ -251,7 +251,7 @@ void closeServer(int &serverSocket)
   exit(0);
 }
 
-void manageClient(const int &serverSocket, const volatile int clientno)
+void manageClient(const int &serverSocket, const int clientno)
 {
   if (clientno == CLIENT_MAX)
     return;
