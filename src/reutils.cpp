@@ -11,10 +11,9 @@
 
 #define toString(x) (x + '0')
 
-void new_socket(int &server)
+void newSocket(int &server)
 {
 
-  // creates a new socket
   server = socket(AF_INET, SOCK_STREAM, 0);
   if (server == -1)
   {
@@ -23,7 +22,7 @@ void new_socket(int &server)
   }
 }
 
-void SetAndBindServerSocket(sockaddr_in &server, int &file_descriptor_server)
+void setAndBindServerSocket(sockaddr_in &server, int &file_descriptor_server)
 {
   server.sin_family = AF_INET;
   server.sin_port = htons(8080);       // Port number
@@ -47,7 +46,7 @@ void SetAndBindServerSocket(sockaddr_in &server, int &file_descriptor_server)
   std::cout << "Server is listening on port 8080..." << "\n";
 }
 
-void ConnectClientSocket(sockaddr_in &client, int &file_descriptor_client, int &file_descriptor_server)
+bool connectClientSocket(sockaddr_in &client, int &file_descriptor_client, const int &file_descriptor_server)
 {
 
   // accepts the request by the client
@@ -58,26 +57,28 @@ void ConnectClientSocket(sockaddr_in &client, int &file_descriptor_client, int &
   {
     std::cerr << "Failed to accept connection!" << "\n";
     close(file_descriptor_server);
-    exit(1);
+    return false;
   }
 
   std::cout << "Client connected!" << "\n";
+  return true;
 }
 
 void readDatafile();
 
 void Communicate(int &clientSocket)
 {
+
+
   // reads the file "data.raotf" aka DATA_FILE_NAME
   readDatafile();
 
-  // creates an ostream obj to append the commands that will be executed by the client
+  // creates an ostream obj to append the commands that will be executed by the client in a the "data.raotf" file
   std::ofstream aot(DATA_FILE_NAME, std::ios_base::app);
 
   char buffer[1024];
   while (true)
   {
-    // Clear the buffer
     memset(buffer, 0, sizeof(buffer));
 
     // Receive data from the client
@@ -97,21 +98,22 @@ void Communicate(int &clientSocket)
     Parser parser;
     std::vector<std::string> v = parser.ParseCommand(buffer);
 
-    // Print the received message
+
+#ifdef DEV_AND_DEBUG
     for (std::string a : v)
     {
       std::cout << a << "\n";
     }
+#endif
 
     // processes the commands
     if (v[0] == "GET")
     {
-      if (v.size() > 1 && data.count(v[1]) > 0)
+      if (v.size() > 1 && Data.count(v[1]) > 0)
       {
         // makes the element in the redis protocol
-        std::string response = "+" + data[v[1]] + "\r\n";
+        std::string response = "+" + Data[v[1]] + "\r\n";
 
-        // sends the msg
         send(clientSocket, response.c_str(), response.size(), 0);
       }
       else
@@ -134,13 +136,13 @@ void Communicate(int &clientSocket)
       }
 
       // if the key already exists, modifies its contents to the curent
-      if (data.contains(v[1]))
-        data[v[1]] = v[2];
+      if (Data.contains(v[1]))
+        Data[v[1]] = v[2];
 
       else
-        data.insert(std::make_pair(v[1], v[2]));
+        Data.insert(std::make_pair(v[1], v[2]));
 
-      // prints ok
+      // prints ok in the redis protocol
       const char *response = "+Ok\r\n";
       send(clientSocket, response, strlen(response), 0);
 
@@ -148,9 +150,10 @@ void Communicate(int &clientSocket)
       for (std::string &str : v)
         aot << str << " ";
 
-      // adds a null termination after command
       aot << "\n";
+
     }
+
     else if (v[0] == "DEL")
     {
       std::string response;
@@ -158,7 +161,7 @@ void Communicate(int &clientSocket)
       // if it exists then will return 1, else 0
       if (v.size() >= 2)
       {
-        data.erase(v[1]);
+        Data.erase(v[1]);
         response = "+(integer)1\r\n";
         send(clientSocket, response.c_str(), response.size(), 0);
       }
@@ -171,10 +174,8 @@ void Communicate(int &clientSocket)
       for (std::string &str : v)
         aot << str << " ";
 
-      // adds a null termination after command
       aot << "\n";
     }
-    // just returns the final value
     else if (v[0] == "PING")
     {
       std::string response;
@@ -192,7 +193,6 @@ void Communicate(int &clientSocket)
 
 void readDatafile()
 {
-  // reads the file
   std::ifstream in(DATA_FILE_NAME);
 
   if (!in.is_open())
@@ -221,51 +221,54 @@ void readDatafile()
       }
 
       // if the key exists, modify it to the current one
-      if (data.contains(v[1]))
-        data[v[1]] = v[2];
+      if (Data.contains(v[1]))
+        Data[v[1]] = v[2];
 
       else
-        data.insert(std::make_pair(v[1], v[2]));
+        Data.insert(std::make_pair(v[1], v[2]));
     }
     else if (v[0] == "DEL")
     {
       // if it is valid then deletes
       if (v.size() >= 2)
       {
-        data.erase(v[1]);
+        Data.erase(v[1]);
       }
     }
   }
 }
 
-void manage_client(int &serverSocket, volatile int &clientno)
+void closeServer(int &serverSocket)
 {
-  if (clientno == CLIENT_MAX) 
+  std::cin.get();
+  std::cout << "\nexiting\n";
+  for (size_t i = 0; i < CLIENT_MAX; i++)
+  {
+    shutdown(clientFile[i], SHUT_RD);
+    close(clientFile[i]);
+  }
+  close(serverSocket);
+  exit(0);
+}
+
+void manageClient(const int &serverSocket, const volatile int clientno)
+{
+  if (clientno == CLIENT_MAX)
     return;
 
-  clientno++;
-
-  int clientSocket;
-
-  // connecting with the client
   sockaddr_in clientAddress;
 
-  ConnectClientSocket(clientAddress, clientSocket, serverSocket);
+  if (connectClientSocket(clientAddress, clientFile[clientno], serverSocket));
+    std::thread client(manageClient, std::ref(serverSocket), clientno + 1); // for simultaneously connect to other clients
+  
+  Communicate(clientFile[clientno]); // to create the thread at the first iteration of the loop, it is outside the loop itself
 
-  std::thread client(manage_client, std::ref(serverSocket), std::ref(clientno));
+  while (true)
+  {
 
-  // Communicate with the client
-  Communicate(clientSocket);
-
-  while(!shouldCloseServer){
-
-    ConnectClientSocket(clientAddress, clientSocket, serverSocket);
-    // Communicate with the client
-    Communicate(clientSocket);
-
+    connectClientSocket(clientAddress, clientFile[clientno], serverSocket);
+    Communicate(clientFile[clientno]);
   }
 
-
   client.join();
-
 }

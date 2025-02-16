@@ -9,28 +9,26 @@
 int serverSocket;
 volatile int clientno = 0;
 
-void close_socket();
+void closeSocket();
 
 int main()
 {
-  // Create a socket
-  new_socket(serverSocket);
+  newSocket(serverSocket);
 
-  // setting and binding the socket
-  sockaddr_in serverAddress;
-  SetAndBindServerSocket(serverAddress, serverSocket);
+  sockaddr_in serverAddress; //information of the server
+  setAndBindServerSocket(serverAddress, serverSocket);
   
-  atexit(close_socket);
+  atexit(closeSocket);
 
-  manage_client(serverSocket, clientno);
+  std::thread shutserver(closeServer, std::ref(serverSocket));
+  manageClient(serverSocket, clientno);
 
   shutserver.join();
-  // Close the sockets
 
   return 0;
 }
 
-void close_socket()
+void closeSocket()
 {
   close(serverSocket);
 }
