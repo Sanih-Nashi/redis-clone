@@ -24,8 +24,11 @@ void newSocket(int &server)
 
 void setAndBindServerSocket(sockaddr_in &server, int &file_descriptor_server)
 {
+  std::cout <<"Port on which it should run on: ";
+  int serverNum;
+  std::cin >> serverNum;
   server.sin_family = AF_INET;
-  server.sin_port = htons(8080);       // Port number
+  server.sin_port = htons(serverNum);       // Port number
   server.sin_addr.s_addr = INADDR_ANY; // Listen on all available interfaces
 
   if (bind(file_descriptor_server, (sockaddr *)&server, sizeof(server)) == -1)
