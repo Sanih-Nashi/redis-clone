@@ -46,7 +46,7 @@ void setAndBindServerSocket(sockaddr_in &server, int &file_descriptor_server)
     exit(1);
   }
 
-  std::cout << "Server is listening on port 8080..." << "\n";
+  std::cout << "Server is listening on port " << serverNum<< "..." << "\n";
 }
 
 bool connectClientSocket(sockaddr_in &client, int &file_descriptor_client, const int &file_descriptor_server)
@@ -196,6 +196,7 @@ void Communicate(int &clientSocket)
 
 void readDatafile()
 {
+  std::ofstream { DATA_FILE_NAME};
   std::ifstream in(DATA_FILE_NAME);
 
   if (!in.is_open())
@@ -243,6 +244,8 @@ void readDatafile()
 
 void closeServer(int &serverSocket)
 {
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  std::cin.clear();
   std::cin.get();
   std::cout << "\nexiting\n";
   for (size_t i = 0; i < CLIENT_MAX; i++)
