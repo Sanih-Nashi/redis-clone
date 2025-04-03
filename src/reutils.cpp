@@ -6,6 +6,7 @@
 #include <cstring>
 #include <fstream>
 #include <string_view>
+#include <chrono>
 
 #include <unistd.h>
 
@@ -269,6 +270,7 @@ void manageClient(const int &serverSocket, const int clientno)
       Communicate(clientFile[clientno]); // to create the thread at the first iteration of the loop, it is outside the loop itself
       break;
     }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
   while (true)
@@ -276,6 +278,7 @@ void manageClient(const int &serverSocket, const int clientno)
 
     if (connectClientSocket(clientAddress, clientFile[clientno], serverSocket))
       Communicate(clientFile[clientno]);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
   client.join();
