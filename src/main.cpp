@@ -6,10 +6,14 @@
 
 #include "reutils.h"
 
-int serverSocket;
-volatile int clientno = 0;
+static int serverSocket;
+static volatile int clientno = 0;
 
-void closeSocket();
+void closeSocket()
+{
+  close(serverSocket);
+}
+
 
 int main()
 {
@@ -21,15 +25,10 @@ int main()
   atexit(closeSocket);
 
   std::thread shutserver(closeServer, std::ref(serverSocket));
-  manageClient(serverSocket, clientno);
+  manageClient(serverSocket, 0);
 
   shutserver.join();
 
   return 0;
-}
-
-void closeSocket()
-{
-  close(serverSocket);
 }
 

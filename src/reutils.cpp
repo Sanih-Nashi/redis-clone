@@ -196,14 +196,11 @@ void Communicate(int &clientSocket)
 
 void readDatafile()
 {
-  std::ofstream { DATA_FILE_NAME};
   std::ifstream in(DATA_FILE_NAME);
 
   if (!in.is_open())
   {
-    std::cerr << "file \"" << DATA_FILE_NAME << "\" is not open"
-              << "\n exited with code 1";
-    exit(1);
+    std::ofstream{DATA_FILE_NAME};
   }
 
   std::string buffer;
@@ -259,21 +256,26 @@ void closeServer(int &serverSocket)
 
 void manageClient(const int &serverSocket, const int clientno)
 {
-  if (clientno == CLIENT_MAX)
+  if (clientno >= CLIENT_MAX)
     return;
 
   sockaddr_in clientAddress;
+  std::thread client;
 
-  if (connectClientSocket(clientAddress, clientFile[clientno], serverSocket));
-    std::thread client(manageClient, std::ref(serverSocket), clientno + 1); // for simultaneously connect to other clients
-  
-  Communicate(clientFile[clientno]); // to create the thread at the first iteration of the loop, it is outside the loop itself
+  while (true){
+    if (connectClientSocket(clientAddress, clientFile[clientno], serverSocket))
+    {
+      client = std::thread(manageClient, std::ref(serverSocket), clientno + 1); // for simultaneously connect to other clients
+      Communicate(clientFile[clientno]); // to create the thread at the first iteration of the loop, it is outside the loop itself
+      break;
+    }
+  }
 
   while (true)
   {
 
-    connectClientSocket(clientAddress, clientFile[clientno], serverSocket);
-    Communicate(clientFile[clientno]);
+    if (connectClientSocket(clientAddress, clientFile[clientno], serverSocket))
+      Communicate(clientFile[clientno]);
   }
 
   client.join();
